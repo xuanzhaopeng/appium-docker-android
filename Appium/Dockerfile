@@ -56,6 +56,10 @@ RUN wget -O tools.zip https://dl.google.com/android/repository/${SDK_VERSION}.zi
     chmod a+x -R $ANDROID_HOME
 ENV PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin
 
+#=====================
+# Build scrcpy
+#=====================
+RUN sudo python3 -m pip install -U pip && sudo pip install meson
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
 RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
 RUN cd scrcpy/x && ninja && sudo ninja install
