@@ -1,6 +1,10 @@
 ### Scrcpy builder
 FROM ubuntu:16.04 as scrcpyBuilder
 
+RUN apt-get -qqy update && \
+    apt-get -qqy --no-install-recommends install \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
 #========================================
 # Add normal user with passwordless sudo
 #========================================
