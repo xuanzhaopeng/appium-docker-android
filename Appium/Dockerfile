@@ -45,6 +45,24 @@ RUN apt-get -qqy update && \
     xvfb \
   && rm -rf /var/lib/apt/lists/*
 
+#========================================
+# Add normal user with passwordless sudo
+#========================================
+# Layer size: tiny: 0.3 MB
+RUN useradd seluser \
+         --shell /bin/bash  \
+         --create-home \
+  && usermod -a -G sudo seluser \
+  && gpasswd -a seluser video \
+  && echo 'seluser:secret' | chpasswd \
+  && useradd extrauser \
+         --shell /bin/bash  \
+  && usermod -a -G sudo extrauser \
+  && gpasswd -a extrauser video \
+  && gpasswd -a extrauser seluser \
+  && echo 'extrauser:secret' | chpasswd \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
+
 #===============
 # Set JAVA_HOME
 #===============
@@ -95,6 +113,9 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 #==================================
 # Setup ws scrcpy
 #==================================
+USER seluser
+WORKDIR /home/seluser
+
 RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
     ffmpeg \
@@ -121,7 +142,9 @@ RUN apt-get -qqy update && \
 RUN python3 -m pip install -U pip && pip install meson
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
 RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
-RUN cd scrcpy/x && ninja
+RUN cd scrcpy/x && ninja && sudo ninja install
+USER root
+WORKDIR /root
 
 #==================================
 # Fix Issue with timezone mismatch
