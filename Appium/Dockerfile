@@ -113,9 +113,6 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 #==================================
 # Setup ws scrcpy
 #==================================
-USER seluser
-WORKDIR /home/seluser
-
 RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
     ffmpeg \
@@ -140,6 +137,9 @@ RUN apt-get -qqy update && \
     libsdl2-2.0.0 \
   && rm -rf /var/lib/apt/lists/*
 RUN python3 -m pip install -U pip && pip install meson
+
+USER seluser
+WORKDIR /home/seluser
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
 RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
 RUN cd scrcpy/x && ninja && sudo ninja install
