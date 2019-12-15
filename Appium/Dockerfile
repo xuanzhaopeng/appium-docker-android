@@ -124,8 +124,8 @@ RUN apt-get -qqy update && \
     ffmpeg \
     libsdl2-2.0.0 \
   && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /scrcpy-server.jar /usr/local/share/scrcpy/
-COPY --from=builder /scrcpy/x/app/scrcpy /usr/local/bin/
+COPY --from=builder /root/scrcpy-server.jar /usr/local/share/scrcpy/
+COPY --from=builder /root/scrcpy/x/app/scrcpy /usr/local/bin/
 
 #==================================
 # Fix Issue with timezone mismatch
