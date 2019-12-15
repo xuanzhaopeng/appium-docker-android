@@ -114,7 +114,6 @@ RUN apt-get -qqy update && \
 
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
 RUN cd scrcpy && meson x --buildtype release --strip -Db_lto=true
-RUN cd scrcpy/x && ninja
 
 #==================================
 # Fix Issue with timezone mismatch
