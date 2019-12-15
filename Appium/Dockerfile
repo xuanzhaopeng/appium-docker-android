@@ -50,8 +50,7 @@ ENV SDK_VERSION=$SDK_VERSION \
 
 RUN wget -O tools.zip https://dl.google.com/android/repository/${SDK_VERSION}.zip && \
     unzip tools.zip && rm tools.zip && \
-    chmod a+x -R $ANDROID_HOME && \
-    chown -R root:root $ANDROID_HOME
+    chmod a+x -R $ANDROID_HOME
 ENV PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin
 
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
