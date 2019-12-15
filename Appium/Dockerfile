@@ -1,6 +1,6 @@
 FROM ubuntu:16.04
 
-LABEL maintainer "Srinivasan Sekar <srinivasan.sekar1990@gmail.com>"
+LABEL maintainer "Robin <xuanzhaopeng@gmail.com>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -113,7 +113,7 @@ RUN apt-get -qqy update && \
   && rm -rf /var/lib/apt/lists/*
 
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
-RUN cd scrcpy && meson x --buildtype release --strip -Db_lto=true
+RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
 
 #==================================
 # Fix Issue with timezone mismatch
