@@ -8,6 +8,7 @@ RUN apt-get -qqy update && \
     gcc  \
     pkg-config \
     python3-pip \
+    python3-setuptools \
     ninja-build \
     libavcodec-dev \
     libavformat-dev \
