@@ -1,3 +1,68 @@
+### Scrcpy builder
+FROM ubuntu:16.04 as scrcpyBuilder
+
+#========================================
+# Add normal user with passwordless sudo
+#========================================
+# Layer size: tiny: 0.3 MB
+RUN useradd seluser \
+         --shell /bin/bash  \
+         --create-home \
+  && usermod -a -G sudo seluser \
+  && gpasswd -a seluser video \
+  && echo 'seluser:secret' | chpasswd \
+  && useradd extrauser \
+         --shell /bin/bash  \
+  && usermod -a -G sudo extrauser \
+  && gpasswd -a extrauser video \
+  && gpasswd -a extrauser seluser \
+  && echo 'extrauser:secret' | chpasswd \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+#========================================
+# Install dependencies
+#========================================
+RUN apt-get -qqy update && \
+    apt-get -qqy --no-install-recommends install \
+    openjdk-8-jdk \
+    make \
+    gcc  \
+    pkg-config \
+    python3-pip \
+    python3-setuptools \
+    ninja-build \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libsdl2-dev \
+    git \
+  && rm -rf /var/lib/apt/lists/*
+
+#========================================
+# Switch to normal user
+#========================================
+USER seluser
+WORKDIR /home/seluser
+
+#=====================
+# Install Android SDK
+#=====================
+ARG SDK_VERSION=sdk-tools-linux-3859397
+ARG ANDROID_BUILD_TOOLS_VERSION=26.0.0
+ENV SDK_VERSION=$SDK_VERSION \
+    ANDROID_BUILD_TOOLS_VERSION=$ANDROID_BUILD_TOOLS_VERSION \
+    ANDROID_HOME=/home/seluser
+
+RUN wget -O tools.zip https://dl.google.com/android/repository/${SDK_VERSION}.zip && \
+    unzip tools.zip && rm tools.zip && \
+    chmod a+x -R $ANDROID_HOME && \
+    chown -R root:root $ANDROID_HOME
+ENV PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin
+
+RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
+RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
+RUN cd scrcpy/x && ninja && sudo ninja install
+
 ### Appium Android Docker
 FROM ubuntu:16.04
 
@@ -44,24 +109,6 @@ RUN apt-get -qqy update && \
     libgconf-2-4 \
     xvfb \
   && rm -rf /var/lib/apt/lists/*
-
-#========================================
-# Add normal user with passwordless sudo
-#========================================
-# Layer size: tiny: 0.3 MB
-RUN useradd seluser \
-         --shell /bin/bash  \
-         --create-home \
-  && usermod -a -G sudo seluser \
-  && gpasswd -a seluser video \
-  && echo 'seluser:secret' | chpasswd \
-  && useradd extrauser \
-         --shell /bin/bash  \
-  && usermod -a -G sudo extrauser \
-  && gpasswd -a extrauser video \
-  && gpasswd -a extrauser seluser \
-  && echo 'extrauser:secret' | chpasswd \
-  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 #===============
 # Set JAVA_HOME
@@ -119,32 +166,8 @@ RUN apt-get -qqy update && \
     libsdl2-2.0.0 \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get -qqy update && \
-    apt-get -qqy --no-install-recommends install \
-    openjdk-8-jdk \
-    make \
-    gcc  \
-    pkg-config \
-    python3-pip \
-    python3-setuptools \
-    ninja-build \
-    libavcodec-dev \
-    libavformat-dev \
-    libavutil-dev \
-    libsdl2-dev \
-    git \
-    ffmpeg \
-    libsdl2-2.0.0 \
-  && rm -rf /var/lib/apt/lists/*
-RUN python3 -m pip install -U pip && pip install meson
-
-USER seluser
-WORKDIR /home/seluser
-RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
-RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
-RUN cd scrcpy/x && ninja && sudo ninja install
-USER root
-WORKDIR /root
+COPY --from=scrcpyBuilder /usr/local/bin/scrcpy /usr/local/bin/
+COPY --from=scrcpyBuilder /usr/local/share/scrcpy/scrcpy-server.jar /usr/local/share/scrcpy/
 
 #==================================
 # Fix Issue with timezone mismatch
