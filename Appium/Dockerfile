@@ -1,27 +1,3 @@
-### scrcpy builder
-FROM ubuntu:16.04 AS builder
-
-RUN apt-get -qqy update && \
-    apt-get -qqy --no-install-recommends install \
-    openjdk-8-jdk \
-    make \
-    gcc  \
-    pkg-config \
-    python3-pip \
-    python3-setuptools \
-    ninja-build \
-    libavcodec-dev \
-    libavformat-dev \
-    libavutil-dev \
-    libsdl2-dev \
-    git \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m pip install -U pip && pip install meson
-RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
-RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
-RUN cd scrcpy/x && ninja
-
 ### Appium Android Docker
 FROM ubuntu:16.04
 
@@ -124,8 +100,28 @@ RUN apt-get -qqy update && \
     ffmpeg \
     libsdl2-2.0.0 \
   && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /root/scrcpy-server.jar /usr/local/share/scrcpy/
-COPY --from=builder /root/scrcpy/x/app/scrcpy /usr/local/bin/
+
+RUN apt-get -qqy update && \
+    apt-get -qqy --no-install-recommends install \
+    openjdk-8-jdk \
+    make \
+    gcc  \
+    pkg-config \
+    python3-pip \
+    python3-setuptools \
+    ninja-build \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libsdl2-dev \
+    git \
+    ffmpeg \
+    libsdl2-2.0.0 \
+  && rm -rf /var/lib/apt/lists/*
+RUN python3 -m pip install -U pip && pip install meson
+RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
+RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
+RUN cd scrcpy/x && ninja
 
 #==================================
 # Fix Issue with timezone mismatch
