@@ -30,6 +30,8 @@ WORKDIR /root
 #   Required package for chrome and chromedriver to run on Linux
 # xvfb
 #   X virtual framebuffer
+# git
+#   git tool
 #==================
 RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
@@ -42,6 +44,7 @@ RUN apt-get -qqy update && \
     libqt5webkit5 \
     libgconf-2-4 \
     xvfb \
+    git \
   && rm -rf /var/lib/apt/lists/*
 
 #===============
@@ -90,6 +93,28 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get autoremove --purge -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     apt-get clean
+
+#==================================
+# Setup ws scrcpy
+#==================================
+RUN apt-get -qqy update && \
+    apt-get -qqy --no-install-recommends install \
+    ffmpeg \
+    libsdl2-2.0.0 \
+    make \
+    gcc  \
+    pkg-config \
+    meson \
+    ninja-build \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libsdl2-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
+RUN cd scrcpy && meson x --buildtype release --strip -Db_lto=true
+RUN cd scrcpy/x && ninja
 
 #==================================
 # Fix Issue with timezone mismatch
