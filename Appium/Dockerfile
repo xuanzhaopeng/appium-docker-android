@@ -9,14 +9,7 @@ RUN useradd seluser \
          --shell /bin/bash  \
          --create-home \
   && usermod -a -G sudo seluser \
-  && gpasswd -a seluser video \
   && echo 'seluser:secret' | chpasswd \
-  && useradd extrauser \
-         --shell /bin/bash  \
-  && usermod -a -G sudo extrauser \
-  && gpasswd -a extrauser video \
-  && gpasswd -a extrauser seluser \
-  && echo 'extrauser:secret' | chpasswd \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 #========================================
@@ -36,6 +29,8 @@ RUN apt-get -qqy update && \
     libavutil-dev \
     libsdl2-dev \
     git \
+    wget \
+    unzip \
   && rm -rf /var/lib/apt/lists/*
 
 #========================================
