@@ -40,8 +40,7 @@ RUN sudo apt-get -qqy update && \
     libsdl2-dev \
     git \
     wget \
-    unzip \
-  && rm -rf /var/lib/apt/lists/*
+    unzip
 
 #=====================
 # Install Android SDK
