@@ -102,6 +102,8 @@ WORKDIR /root
 #   Required package for chrome and chromedriver to run on Linux
 # xvfb
 #   X virtual framebuffer
+# git
+#   A tool for git
 #==================
 RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
@@ -114,6 +116,7 @@ RUN apt-get -qqy update && \
     libqt5webkit5 \
     libgconf-2-4 \
     xvfb \
+    git \
   && rm -rf /var/lib/apt/lists/*
 
 #===============
@@ -174,6 +177,9 @@ RUN apt-get -qqy update && \
 
 COPY --from=scrcpyBuilder /usr/local/bin/scrcpy /usr/local/bin/
 COPY --from=scrcpyBuilder /usr/local/share/scrcpy/scrcpy-server.jar /usr/local/share/scrcpy/
+RUN git clone https://github.com/NetrisTV/ws-scrcpy.git \
+    && cd ws-scrcpy \
+    && npm install
 
 #==================================
 # Fix Issue with timezone mismatch
