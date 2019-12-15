@@ -46,15 +46,20 @@ RUN sudo apt-get -qqy update && \
 # Install Android SDK
 #=====================
 ARG SDK_VERSION=sdk-tools-linux-3859397
-ARG ANDROID_BUILD_TOOLS_VERSION=26.0.0
-ENV SDK_VERSION=$SDK_VERSION \
-    ANDROID_BUILD_TOOLS_VERSION=$ANDROID_BUILD_TOOLS_VERSION \
-    ANDROID_HOME=/home/seluser
+ARG ANDROID_BUILD_TOOLS_VERSION=27.0.3
+ENV ANDROID_HOME=/home/seluser
 
 RUN wget -O tools.zip https://dl.google.com/android/repository/${SDK_VERSION}.zip && \
     unzip tools.zip && rm tools.zip && \
     chmod a+x -R $ANDROID_HOME
 ENV PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin
+
+RUN mkdir -p ~/.android
+RUN touch ~/.android/repositories.cfg
+
+RUN echo y | sdkmanager "platform-tools"
+RUN echo y | sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VERSION"
+ENV PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools
 
 #=====================
 # Build scrcpy
