@@ -16,7 +16,7 @@ RUN apt-get -qqy update && \
     git \
   && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 --version && pip3 install meson
+RUN python3 -m pip install -U pip && pip install meson
 RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
 RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
 
