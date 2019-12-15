@@ -177,7 +177,7 @@ RUN apt-get -qqy update && \
 
 COPY --from=scrcpyBuilder /usr/local/bin/scrcpy /usr/local/bin/
 COPY --from=scrcpyBuilder /usr/local/share/scrcpy/scrcpy-server.jar /usr/local/share/scrcpy/
-RUN git clone https://github.com/NetrisTV/ws-scrcpy.git \
+RUN git clone https://github.com/xuanzhaopeng/ws-scrcpy.git \
     && cd ws-scrcpy \
     && npm install
 
@@ -192,8 +192,11 @@ RUN echo "${TZ}" > /etc/timezone
 #---------------
 # 4723
 #   Appium port
+# 8000
+#   ws-scrcpy
 #===============
 EXPOSE 4723
+EXPOSE 8000
 
 #====================================================
 # Scripts to run appium and connect to Selenium Grid
