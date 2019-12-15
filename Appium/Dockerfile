@@ -13,10 +13,16 @@ RUN useradd seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 #========================================
+# Switch to normal user
+#========================================
+USER seluser
+WORKDIR /home/seluser
+
+#========================================
 # Install dependencies
 #========================================
-RUN apt-get -qqy update && \
-    apt-get -qqy --no-install-recommends install \
+RUN sudo apt-get -qqy update && \
+    sudo apt-get -qqy --no-install-recommends install \
     openjdk-8-jdk \
     make \
     gcc  \
@@ -32,12 +38,6 @@ RUN apt-get -qqy update && \
     wget \
     unzip \
   && rm -rf /var/lib/apt/lists/*
-
-#========================================
-# Switch to normal user
-#========================================
-USER seluser
-WORKDIR /home/seluser
 
 #=====================
 # Install Android SDK
