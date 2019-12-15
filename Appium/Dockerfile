@@ -1,3 +1,30 @@
+### scrcpy builder
+FROM ubuntu:16.04 AS builder
+
+RUN apt-get -qqy update && \
+    apt-get -qqy --no-install-recommends install \
+    openjdk-8-jdk \
+    make \
+    gcc  \
+    pkg-config \
+    meson \
+    ninja-build \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libsdl2-dev \
+    git \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
+RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
+
+RUN PATH=$PATH:/usr/lib/jvm/java-1.8-openjdk/bin
+RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
+RUN cd scrcpy && meson x --buildtype release --strip -Db_lto=true
+RUN cd scrcpy/x && ninja
+
+### Appium Android Docker
 FROM ubuntu:16.04
 
 LABEL maintainer "Robin <xuanzhaopeng@gmail.com>"
@@ -30,8 +57,6 @@ WORKDIR /root
 #   Required package for chrome and chromedriver to run on Linux
 # xvfb
 #   X virtual framebuffer
-# git
-#   git tool
 #==================
 RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
@@ -44,7 +69,6 @@ RUN apt-get -qqy update && \
     libqt5webkit5 \
     libgconf-2-4 \
     xvfb \
-    git \
   && rm -rf /var/lib/apt/lists/*
 
 #===============
@@ -101,19 +125,9 @@ RUN apt-get -qqy update && \
     apt-get -qqy --no-install-recommends install \
     ffmpeg \
     libsdl2-2.0.0 \
-    make \
-    gcc  \
-    pkg-config \
-    meson \
-    ninja-build \
-    libavcodec-dev \
-    libavformat-dev \
-    libavutil-dev \
-    libsdl2-dev \
   && rm -rf /var/lib/apt/lists/*
-
-RUN git clone -b feature/websocket-server https://github.com/xuanzhaopeng/scrcpy.git
-RUN cd scrcpy && mkdir -p x && meson x --buildtype release --strip -Db_lto=true
+COPY --from=builder /scrcpy-server.jar /usr/local/share/scrcpy/
+COPY --from=builder /scrcpy/x/app/scrcpy /usr/local/bin/
 
 #==================================
 # Fix Issue with timezone mismatch
