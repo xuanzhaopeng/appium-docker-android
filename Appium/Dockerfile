@@ -70,6 +70,7 @@ RUN mkdir -p ~/.android
 RUN touch ~/.android/repositories.cfg
 
 RUN echo y | sdkmanager "platform-tools"
+RUN echo y | sdkmanager "platforms;android-28"
 RUN echo y | sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VERSION"
 ENV PATH=$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools
 
