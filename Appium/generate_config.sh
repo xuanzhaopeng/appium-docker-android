@@ -42,6 +42,12 @@ fi
 
 #Get device names
 devices=($(adb devices | grep -oP "\K([^ ]+)(?=\sdevice(\W|$))"))
+while [[ -z "$devices" ]];
+do
+   sleep 2
+   devices=($(adb devices | grep -oP "\K([^ ]+)(?=\sdevice(\W|$))"))
+done
+
 echo "Devices found: ${#devices[@]}"
 
 #Create capabilities json configs
