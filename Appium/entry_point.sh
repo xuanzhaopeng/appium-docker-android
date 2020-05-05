@@ -3,7 +3,7 @@
 NODE_CONFIG_JSON="/root/nodeconfig.json"
 DEFAULT_CAPABILITIES_JSON="/root/defaultcapabilities.json"
 APPIUM_LOG="/var/log/appium.log"
-CMD="/usr/bin/node /usr/bin/appium --log $APPIUM_LOG"
+CMD="/usr/bin/appium --log $APPIUM_LOG"
 
 if [ ! -z "$USB_BUS" ]; then
     try="0"
@@ -36,7 +36,6 @@ if [ "$RELAXED_SECURITY" = true ]; then
     CMD+=" --relaxed-security"
 fi
 
-CMD+=" > /dev/null 2>&1 &"
 
 rm -rf restart.sh
 touch restart.sh
@@ -45,7 +44,7 @@ echo -e 'pgrep -f appium | xargs kill -9' >> restart.sh
 echo -e 'old_device_unique_id=$1' >> restart.sh
 echo -e 'new_device_unique_id=$2' >> restart.sh
 echo -e 'sed -i s/$old_device_unique_id/$new_device_unique_id/g nodeconfig.json' >> restart.sh
-echo -e $CMD >> restart.sh
+echo -e "/usr/bin/node $CMD > /dev/null 2>&1 &" >> restart.sh
 chmod +x restart.sh
 
 pkill -x Xvfb
@@ -58,6 +57,6 @@ xvfb=$!
 
 export DISPLAY=:99
 
-$CMD
+/usr/bin/node $CMD  > /dev/null 2>&1 &
 
 wait $xvfb
