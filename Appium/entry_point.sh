@@ -53,7 +53,11 @@ rm -rf /tmp/.X99-lock
 
 # http://elementalselenium.com/tips/38-headless
 # https://github.com/appium/appium/issues/5446
-Xvfb :99 -screen 0 640x480x8 &
+Xvfb :99 -ac -screen 0 640x480x8 -nolisten tcp &
+xvfb=$!
+
 export DISPLAY=:99
 
 $CMD
+
+wait $xvfb
