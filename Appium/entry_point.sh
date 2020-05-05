@@ -43,6 +43,7 @@ echo -e '#!/bin/bash' >> restart.sh
 echo -e 'pgrep -f appium | xargs kill -9' >> restart.sh
 echo -e 'old_device_unique_id=$1' >> restart.sh
 echo -e 'new_device_unique_id=$2' >> restart.sh
+echo -e "rm -rf ${APPIUM_LOG}" >> restart.sh
 echo -e 'sed -i s/$old_device_unique_id/$new_device_unique_id/g nodeconfig.json' >> restart.sh
 echo -e "/usr/bin/node $CMD > /dev/null 2>&1 &" >> restart.sh
 chmod +x restart.sh
