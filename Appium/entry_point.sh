@@ -3,7 +3,7 @@
 NODE_CONFIG_JSON="/root/nodeconfig.json"
 DEFAULT_CAPABILITIES_JSON="/root/defaultcapabilities.json"
 APPIUM_LOG="/var/log/appium.log"
-CMD="xvfb-run appium --log $APPIUM_LOG"
+CMD="appium --log $APPIUM_LOG"
 
 if [ ! -z "$USB_BUS" ]; then
     try="0"
@@ -36,7 +36,24 @@ if [ "$RELAXED_SECURITY" = true ]; then
     CMD+=" --relaxed-security"
 fi
 
-pkill -x xvfb-run
+CMD+=" &"
+
+rm -rf restart.sh
+touch restart.sh
+echo -e '#!/bin/bash' >> restart.sh
+echo -e 'killall appium' >> restart.sh
+echo -e 'old_device_unique_id=$1' >> restart.sh
+echo -e 'new_device_unique_id=$2' >> restart.sh
+echo -e 'sed -i s/$old_device_unique_id/$new_device_unique_id/g nodeconfig.json' >> restart.sh
+echo -e $CMD >> restart.sh
+chmod +x restart.sh
+
+pkill -x Xvfb
 rm -rf /tmp/.X99-lock
+
+# http://elementalselenium.com/tips/38-headless
+# https://github.com/appium/appium/issues/5446
+Xvfb :99 -screen 0 640x480x8 &
+export DISPLAY=:99
 
 $CMD
